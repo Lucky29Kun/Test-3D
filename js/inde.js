@@ -93,8 +93,6 @@ var three = THREE;
         isDragging = false;
     });
 
-
-
     // shim layer with setTimeout fallback
     window.requestAnimFrame = (function(){
         return  window.requestAnimationFrame ||
@@ -104,6 +102,37 @@ var three = THREE;
                 window.setTimeout(callback, 1000 / 60);
             };
     })();
+
+    var ReferenceGamma, ReferenceBeta;
+    var InitVar = false;
+    var Indice = -60; // 60 = temps réel, plus la valeur est grande et moins ca bouge
+    var Limit = 10; // le degré maximum
+
+    window.addEventListener('deviceorientation', function(event) {
+      // Initialisation des valeurs en fonction de l'orientation de l'appareil, ca sera la valeur de référence.
+      if(!InitVar){
+        ReferenceGamma = Math.round(event.gamma);
+        ReferenceBeta = Math.round(event.beta);
+        InitVar = true;
+      }
+
+      if(Math.round(event.gamma) < (ReferenceGamma + Limit) && Math.round(event.gamma) > (ReferenceGamma - Limit)){
+        // On soustrait ReferenceGamma car il faut prendre en compte l'orientation de référence
+        cube.rotation.y = (Math.round(event.gamma) - ReferenceGamma) / Indice;
+      } else if(Math.round(event.gamma) > (ReferenceGamma + Limit)){
+        cube.rotation.y = Limit / Indice;
+      } else {
+        cube.rotation.y = -Limit / Indice;
+      }
+      if(Math.round(event.beta) < (ReferenceBeta + Limit) && Math.round(event.beta) > (ReferenceBeta - Limit)){
+        // On soustrait ReferenceBeta car il faut prendre en compte l'orientation de référence
+        cube.rotation.x = (Math.round(event.beta) - ReferenceBeta) / Indice;
+      } else if(Math.round(event.beta) > (ReferenceBeta + Limit)){
+        cube.rotation.x = Limit / Indice;
+      } else {
+        cube.rotation.x = -Limit / Indice;
+      }
+    });
 
     var lastFrameTime = new Date().getTime() / 1000;
     var totalGameTime = 0;
