@@ -13,10 +13,26 @@
 
     <canvas id="myCanvas"></canvas>
 
-    <script src="js/three.js"></script>
+    <script src="/js/three.js"></script>
 
-    <script>
+    <script type="module">
+import * as THREE from './build/three.module.js';
+import { GLTFLoader } from './js/GLTFLoader.js';
 
+var scene;
+scene = new THREE.Scene();
+const loader = new GLTFLoader();
+
+loader.load( './images/untitled.glb', function ( gltf ) {
+
+	scene.add( gltf.scene );
+
+}, undefined, function ( error ) {
+
+	console.error( error );
+
+} );
+/*
     var renderer,
     	scene,
     	camera,
@@ -24,7 +40,7 @@
 
     //RENDERER
     renderer = new THREE.WebGLRenderer({
-      canvas: myCanvas, 
+      canvas: myCanvas,
       antialias: true
     });
     renderer.setClearColor(0x000000);
@@ -43,8 +59,8 @@
 
     var light2 = new THREE.PointLight(0xffffff, 0.5);
     scene.add(light2);
-  
-    
+
+
     var loader = new THREE.JSONLoader();
     // loader.load('monkey.json', handle_load);
 
@@ -88,7 +104,7 @@
         delta += 0.1;
 
         if (mesh) {
-        
+
             //mesh.rotation.y += 0.01;
 
             //animation mesh
@@ -105,7 +121,7 @@
 
     	requestAnimationFrame(render);
     }
-	
+
 	var ReferenceGamma, ReferenceBeta;
     var InitVar = false;
     var Indice = -60; // 60 = temps réel, plus la valeur est grande et moins ca bouge
@@ -122,20 +138,21 @@
       if(Math.round(event.gamma) < (ReferenceGamma + Limit) && Math.round(event.gamma) > (ReferenceGamma - Limit)){
         // On soustrait ReferenceGamma car il faut prendre en compte l'orientation de référence
         mesh.rotation.y = (Math.round(event.gamma) - ReferenceGamma) / Indice;
-      } /*else if(Math.round(event.gamma) > (ReferenceGamma + Limit)){
-        mesh.rotation.y = Limit / Indice;
-      } else {
-        mesh.rotation.y = -Limit / Indice;
-      }*/
+      }//} else if(Math.round(event.gamma) > (ReferenceGamma + Limit)){
+      //  mesh.rotation.y = Limit / Indice;
+      //} else {
+      //  mesh.rotation.y = -Limit / Indice;
+      //}
       if(Math.round(event.beta) < (ReferenceBeta + Limit) && Math.round(event.beta) > (ReferenceBeta - Limit)){
         // On soustrait ReferenceBeta car il faut prendre en compte l'orientation de référence
         mesh.rotation.x = (Math.round(event.beta) - ReferenceBeta) / Indice;
-      } /*else if(Math.round(event.beta) > (ReferenceBeta + Limit)){
-        mesh.rotation.x = Limit / Indice;
-      } else {
-        mesh.rotation.x = -Limit / Indice;
-      }*/
+      } //else if(Math.round(event.beta) > (ReferenceBeta + Limit)){
+      //  mesh.rotation.x = Limit / Indice;
+      //} else {
+      //  mesh.rotation.x = -Limit / Indice;
+      //}
     });
+    */
 
     </script>
 </body>
