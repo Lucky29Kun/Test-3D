@@ -1,128 +1,55 @@
+<!doctype html>
 <html>
-<head>
-    <title>threejs - models</title>
-
-    <style>
-    	body{
-    		margin: 0;
-    		overflow: hidden;
-    	}
-    </style>
-</head>
-<body>
-
-    <canvas id="myCanvas"></canvas>
-
-    <script src="/js/three.js"></script>
-
+  <head>
+    <meta charset="utf-8" />
+  </head>
+  <body>
+  </body>
+</html>
     <script type="module">
+
 import * as THREE from './build/three.module.js';
 import { GLTFLoader } from './js/GLTFLoader.js';
 
-var scene;
-scene = new THREE.Scene();
-const loader = new GLTFLoader();
+// simplified on three.js/examples/webgl_loader_gltf2.html                        
+function main() {
+    // renderer                                                                 
+    const renderer = new THREE.WebGLRenderer({antialias: true});
+    renderer.setSize(800, 600);
+    document.body.appendChild(renderer.domElement);
 
-loader.load( './images/untitled.glb', function ( gltf ) {
+    // camera             	
+    const camera = new THREE.PerspectiveCamera(1, 800 / 600, 1, 10000);
+    camera.position.set(10, 10, 40); // settings in `sceneList` "Monster"
+    camera.up.set(0, 1, 0);
+    camera.lookAt(new THREE.Vector3(1, 0.3, 0));
 
-	scene.add( gltf.scene );
+    // scene and lights                                                         
+    const scene = new THREE.Scene();
+    scene.add(new THREE.AmbientLight(0xcccccc));
 
-}, undefined, function ( error ) {
-
-	console.error( error );
-
-} );
-/*
-    var renderer,
-    	scene,
-    	camera,
-    	myCanvas = document.getElementById('myCanvas');
-
-    //RENDERER
-    renderer = new THREE.WebGLRenderer({
-      canvas: myCanvas,
-      antialias: true
-    });
-    renderer.setClearColor(0x000000);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    //CAMERA
-    camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000 );
-
-    //SCENE
-    scene = new THREE.Scene();
-
-    //LIGHTS
-    var light = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(light);
-
-    var light2 = new THREE.PointLight(0xffffff, 0.5);
-    scene.add(light2);
-
-
-    var loader = new THREE.JSONLoader();
-    // loader.load('monkey.json', handle_load);
-
-    loader.load('models/monkey/monkey_animated.json', handle_load);
-
-    var mesh;
-    var mixer;
-
-    function handle_load(geometry, materials) {
-
-        //BASIC MESH
-        // var material = new THREE.MultiMaterial(materials);
-        // mesh = new THREE.Mesh(geometry, material);
-        // scene.add(mesh);
-        // mesh.position.z = -10;
-
-        //ANIMATION MESH
-        var material = new THREE.MeshLambertMaterial({morphTargets: true});
-
-        mesh = new THREE.Mesh(geometry, material);
-        scene.add(mesh);
-        mesh.position.z = -10;
-
-
-        //MIXER
-        mixer = new THREE.AnimationMixer(mesh);
-
-        var clip = THREE.AnimationClip.CreateFromMorphTargetSequence('talk', geometry.morphTargets, 30);
-        mixer.clipAction(clip).setDuration(1).play();
-    }
-
-
-    //RENDER LOOP
-    render();
-
-    var delta = 0;
-    var prevTime = Date.now();
-
-    function render() {
-
-        delta += 0.1;
-
-        if (mesh) {
-
-            //mesh.rotation.y += 0.01;
-
-            //animation mesh
-            // mesh.morphTargetInfluences[ 0 ] = Math.sin(delta) * 20.0;
+    // load gltf model and texture                            
+    const objs = [];
+	
+    const loader = new GLTFLoader();
+    loader.load("./images/untitled.glb", gltf => {
+        // model is a THREE.Group (THREE.Object3D)                              
+        const mixer = new THREE.AnimationMixer(gltf.scene);
+        // animations is a list of THREE.AnimationClip
+        for (const anim of gltf.animations) {
+            mixer.clipAction(anim).play();
         }
-
-        if (mixer) {
-            var time = Date.now();
-            mixer.update((time - prevTime) * 0.001);
-            prevTime = time;
-        }
-
-    	renderer.render(scene, camera);
-
-    	requestAnimationFrame(render);
-    }
-
-	var ReferenceGamma, ReferenceBeta;
+        // settings in `sceneList` "Monster"
+        gltf.scene.scale.set(0.4, 0.4, 0.4);
+        gltf.scene.rotation.copy(new THREE.Euler(0, -3 * Math.PI / 0.1, 0));
+        gltf.scene.position.set(1.1, 0.4, 0.4);
+        
+        scene.add(gltf.scene);
+        objs.push({gltf, mixer});
+		
+		/////////////////
+		
+		var ReferenceGamma, ReferenceBeta;
     var InitVar = false;
     var Indice = -60; // 60 = temps réel, plus la valeur est grande et moins ca bouge
     var Limit = 10; // le degré maximum
@@ -137,7 +64,7 @@ loader.load( './images/untitled.glb', function ( gltf ) {
 
       if(Math.round(event.gamma) < (ReferenceGamma + Limit) && Math.round(event.gamma) > (ReferenceGamma - Limit)){
         // On soustrait ReferenceGamma car il faut prendre en compte l'orientation de référence
-        mesh.rotation.y = (Math.round(event.gamma) - ReferenceGamma) / Indice;
+        gltf.scene.rotation.y = (Math.round(event.gamma) - ReferenceGamma) / Indice;
       }//} else if(Math.round(event.gamma) > (ReferenceGamma + Limit)){
       //  mesh.rotation.y = Limit / Indice;
       //} else {
@@ -145,15 +72,28 @@ loader.load( './images/untitled.glb', function ( gltf ) {
       //}
       if(Math.round(event.beta) < (ReferenceBeta + Limit) && Math.round(event.beta) > (ReferenceBeta - Limit)){
         // On soustrait ReferenceBeta car il faut prendre en compte l'orientation de référence
-        mesh.rotation.x = (Math.round(event.beta) - ReferenceBeta) / Indice;
+        gltf.scene.rotation.x = (Math.round(event.beta) - ReferenceBeta) / Indice;
       } //else if(Math.round(event.beta) > (ReferenceBeta + Limit)){
       //  mesh.rotation.x = Limit / Indice;
       //} else {
       //  mesh.rotation.x = -Limit / Indice;
       //}
     });
-    */
+    });
 
-    </script>
-</body>
-</html>
+    // animation rendering                                                      
+    const clock = new THREE.Clock();
+    (function animate() {
+        // animation with THREE.AnimationMixer.update(timedelta)                
+        objs.forEach(({mixer}) => {mixer.update(clock.getDelta());});
+        renderer.render(scene, camera);
+        requestAnimationFrame(animate);
+    })();
+	
+	
+	
+    return objs;
+}
+const objs = main();
+
+</script>
