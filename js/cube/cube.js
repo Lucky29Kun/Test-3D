@@ -19,8 +19,6 @@ var three = THREE;
     /* */
     /* */
     three.ImageUtils.crossOrigin = '';
-    var texture = three.ImageUtils.loadTexture('CEGihbB.gif');
-    texture.anisotropy = renderer.getMaxAnisotropy();
 
     var material = new three.MeshFaceMaterial([
         new three.MeshBasicMaterial({
@@ -30,8 +28,7 @@ var three = THREE;
             color: 0xff0000
         }),
         new three.MeshBasicMaterial({
-            //color: 0x0000ff,
-            map: texture
+            color: 0x0000ff
         }),
         new three.MeshBasicMaterial({
             color: 0xffff00
